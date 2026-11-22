@@ -92,6 +92,22 @@ table.px tr.local td:first-child{color:var(--mute)}
 
 .fill{display:block;font-size:14px;color:var(--mute);margin-top:8px}
 .feeds b{font-variant-numeric:tabular-nums}
+/* live ticker */
+.tick{display:flex;align-items:stretch;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:0 -40px 0;height:46px;overflow:hidden;background:linear-gradient(90deg,rgba(255,75,62,.06),transparent 30%)}
+.tick .tlab{flex:none;display:flex;align-items:center;gap:10px;padding:0 18px 0 40px;font:500 11.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--fg);background:var(--bg);border-right:1px solid var(--line2);z-index:2;white-space:nowrap}
+.tick .tlab .dot{background:var(--hot);box-shadow:0 0 10px var(--hot);animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.25}}
+.tick .tv{flex:1;overflow:hidden;position:relative;-webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 4%,#000 94%,transparent)}
+.tick .tt{display:flex;width:max-content;height:100%;align-items:center;animation:tick 60s linear infinite}
+.tick:hover .tt{animation-play-state:paused}
+@keyframes tick{to{transform:translateX(-50%)}}
+.tick .it{display:flex;align-items:center;gap:9px;padding:0 26px;font:400 13px var(--mono);white-space:nowrap;border-right:1px solid var(--line);font-variant-numeric:tabular-nums}
+.tick .it i{width:7px;height:7px;border-radius:50%}
+.tick .it .v{font-family:var(--sans);font-weight:500;font-size:13.5px}
+.tick .it .pr{color:var(--mute)}
+.tick .it .q{color:var(--fg)}
+.tick .it .c.up{color:var(--up)} .tick .it .c.dn{color:var(--hot2)} .tick .it .c{color:var(--dim);min-width:1em}
+@media (max-width:960px){.tick{margin:0 -20px}.tick .tlab{padding:0 12px 0 20px}.tick .tlab .lg{display:none}}
 /* faq */
 .faq{margin-top:48px;border-top:1px solid var(--line)}
 .faq details{border-bottom:1px solid var(--line)}
@@ -232,6 +248,11 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap}
       <div class="say" id="gapSay">Connecting to Kraken, Coinbase, Binance, Bitstamp and OKX…</div>
     </div>
   </section>
+
+  <div class="tick" aria-label="Live prices streaming from the exchanges">
+    <div class="tlab"><span class="dot"></span><span>Live<span class="lg"> · direct from the exchanges</span></span></div>
+    <div class="tv"><div class="tt" id="tt"></div></div>
+  </div>
 
   <section class="tool" id="live">
     <div class="bar">
@@ -578,7 +599,13 @@ function verdict(){
   if(sb)$('#useArb').innerHTML=`<span>widest BTC gap</span>${sb.gap.toFixed(2)}%`;
   if(cs)$('#useDca').innerHTML=`<span>cheapest SOL</span>${cs.v} · $${fmt(cs.u,2)}`;
 }
-function liveTick(){sample();drawLive();drawPulse();verdict()}
+const TK=[];for(const a of ['BTC','ETH','SOL'])for(const L of LINES)TK.push({L,a});
+(function(){const one=TK.map((t,i)=>`<span class="it"><i style="background:${t.L.c}"></i><span class="v">${t.L.v}</span><span class="pr">${t.a}</span><span class="q" data-q="${i}">—</span><span class="c" data-c="${i}"></span></span>`).join('');$('#tt').innerHTML=one+one})();
+const TKP={};
+function drawTick(){TK.forEach((t,i)=>{const v=lineVal(t.L,t.a);if(!v)return;const prev=TKP[i];TKP[i]=v;
+  const txt='$'+fmt(v,v<100?2:0);$$(`[data-q="${i}"]`).forEach(e=>{if(e.textContent!==txt)e.textContent=txt});
+  if(prev&&v!==prev)$$(`[data-c="${i}"]`).forEach(e=>{e.textContent=v>prev?'▲':'▼';e.className='c '+(v>prev?'up':'dn')})})}
+function liveTick(){sample();drawLive();drawPulse();verdict();drawTick()}
 setInterval(liveTick,1000);liveTick();
 $$('#liveTabs .tab').forEach(b=>b.onclick=()=>{$$('#liveTabs .tab').forEach(x=>x.classList.remove('on'));b.classList.add('on');LA=b.dataset.a;liveTick()});
 $$('#chartMode button').forEach(b=>b.onclick=()=>{$$('#chartMode button').forEach(x=>x.classList.remove('on'));b.classList.add('on');CMODE=b.dataset.m;drawLive()});
