@@ -240,12 +240,12 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap}
     <div>
       <div class="eyebrow"><span class="dot hot"></span>Yesterday on Kraken</div>
       <h1>Kraken sold SOL for <span class="r">C$32</span>. Every other exchange sold it for <span class="g">C$96</span>.</h1>
-      <p class="sub">Exchanges misprice. This page watches five of them, live, and tells you the second one breaks from the rest.</p>
+      <p class="sub">Exchanges misprice. This page watches seven of them across the US, Europe, Korea and Japan, live, and tells you the second one breaks from the rest.</p>
     </div>
     <div class="gap" id="gapBox">
       <div class="lbl" id="gapLbl">Biggest BTC gap right now</div>
       <div class="num" id="gapNum">—</div>
-      <div class="say" id="gapSay">Connecting to Kraken, Coinbase, Binance, Bitstamp and OKX…</div>
+      <div class="say" id="gapSay">Connecting to seven exchanges…</div>
     </div>
   </section>
 
@@ -326,7 +326,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap}
     <div class="use">
       <div class="row"><div class="n">Play one</div><div><h3>Buy where it's cheap, sell where it isn't.</h3><p>When one exchange trades under the rest past your line, buy there and sell on the expensive one. You need money on both first, and round-trip fees run about 0.2–0.5%, so tiny gaps aren't worth it.</p></div><div class="live" id="useArb"><span>right now</span>—</div></div>
       <div class="row"><div class="n">Play two</div><div><h3>Just buy wherever it's cheapest.</h3><p>Buying every week anyway? The table tags the cheapest exchange for each coin, live. Yesterday that was a 66% discount on a DCA buy. On a normal day it's a few dollars.</p></div><div class="live" id="useDca"><span>cheapest SOL</span>—</div></div>
-      <div class="row"><div class="n">Stay ready</div><div><h3>Leave the tab open. Get pinged.</h3><p>Pick your line above. When any of the 36 books crosses it, you get a browser notification, a sound and a log entry with what $1,000 would have made.</p></div><div class="live"><button class="btn solid" id="notifBtn2">Alert me</button></div></div>
+      <div class="row"><div class="n">Stay ready</div><div><h3>Leave the tab open. Get pinged.</h3><p>Pick your line above. When any of the 36 books crosses it, you get a browser notification, a sound and a log entry with what $1,000 would have made.</p></div><div class="live" style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"><button class="btn" id="testBtn">Test alert</button><button class="btn solid" id="notifBtn2">Alert me</button></div></div>
     </div>
 
     <div class="k" style="margin-top:90px">Gap log · this browser</div>
@@ -341,13 +341,14 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap}
     <div class="k">04 · Questions</div>
     <h2>Before you trust a number on this page.</h2>
     <div class="faq">
-      <details><summary>What is this?</summary><p>A live price dashboard. It compares what BTC, ETH and SOL cost right now on Kraken, Coinbase, Binance, Bitstamp and OKX, and flags when one exchange drifts away from the rest. It shows information. It doesn't trade, hold funds or tell you what to do.</p></details>
+      <details><summary>What is this?</summary><p>A live price dashboard. It compares what BTC, ETH and SOL cost right now on Kraken, Coinbase, Binance, Bitstamp and OKX, plus Upbit in Korea and bitFlyer in Japan, and flags when one exchange drifts away from the rest. It shows information. It doesn't trade, hold funds or tell you what to do.</p></details>
       <details><summary>What actually happened on Kraken?</summary><p>From about 20:00 UTC on November 20 to 15:45 UTC on November 21, Kraken's Canadian-dollar markets traded far below every other exchange. SOL printed C$32.00 while the rest of the market was near C$95.86, and BTC printed C$24,250 against about C$82,687. Kraken said it found no breach and that executed trades stand. It hasn't published a confirmed cause.</p></details>
       <details><summary>Could anyone have bought SOL for C$32?</summary><p>Mostly no. You needed a Kraken account with Canadian dollars already on it, and new CAD only reaches Kraken by bank transfer from a Canadian account. That's a big part of why the gap stayed open for hours. The numbers on this page come from Kraken's public 15-minute price data. They're not a record of anyone's fills.</p></details>
-      <details><summary>How often do gaps like this happen?</summary><p>Rarely. Most of the time these five exchanges agree within about 0.1%, which is less than trading fees. Bigger gaps come from things like thin local-currency markets, fat-finger orders, liquidation cascades, stablecoin wobbles and exchange outages. We can't predict when the next one will happen, or whether it will.</p></details>
+      <details><summary>How often do gaps like this happen?</summary><p>Rarely. Most of the time the big global exchanges agree within about 0.1%, which is less than trading fees. Bigger gaps come from things like thin local-currency markets, fat-finger orders, liquidation cascades, stablecoin wobbles and exchange outages. We can't predict when the next one will happen, or whether it will.</p></details>
       <details><summary>Where do the prices come from?</summary><p>Straight from each exchange's public market-data feed to your browser, over WebSocket connections your browser opens itself. Prices don't pass through a server of ours. If an exchange's feed lags, drops or sends a bad price, the dashboard shows exactly that.</p></details>
-      <details><summary>How is the "market price" worked out?</summary><p>It's the median of the live USD, USDT and USDC prices across the five exchanges. USDT prices are adjusted by the live USDT/USD rate. CAD and EUR prices are converted at the rate their own markets imply, which is checked against a daily bank rate and replaced by it if the two disagree by more than 2.5%.</p></details>
+      <details><summary>How is the "market price" worked out?</summary><p>It's the median of the live USD, USDT and USDC prices across Kraken, Coinbase, Binance, Bitstamp and OKX. USDT prices are adjusted by the live USDT/USD rate. CAD and EUR prices are converted at the rate their own markets imply, which is checked against a daily bank rate and replaced by it if the two disagree by more than 2.5%.</p></details>
       <details><summary>Why does Kraken CAD usually sit a little off the others?</summary><p>Currency conversion. Turning a CAD price into US dollars adds a small error, usually under 0.2%. That's normal. A real misprice is many times bigger, and that's what the alert line is for.</p></details>
+      <details><summary>What's the Korea premium?</summary><p>Crypto in Korea often trades a few percent above the rest of the world, which is called the "kimchi premium". Japan sometimes drifts too. These are converted at the official bank exchange rate, so the dashboard shows the real local premium. Capital controls and local-account rules mean most people can't trade across that gap, so Korea and Japan are shown separately and don't trigger the main gap alert.</p></details>
       <details><summary>Is a gap free money?</summary><p>No. To use a gap you need funds already on both exchanges, an account that can trade those markets, and enough depth in the order book at that price. Fees, withdrawal times, limits and slippage all eat into it, and gaps can close before you act. What the dashboard shows is a price, not a trade you're guaranteed to get.</p></details>
       <details><summary>Do I need an account, a wallet or API keys?</summary><p>No. There's no sign-up, no wallet connection and no keys. The dashboard only reads public prices. It can't see or touch your exchange accounts.</p></details>
       <details><summary>How do alerts work?</summary><p>Browser alerts are live. Allow notifications and keep the tab open: when any book crosses your line you get a notification, a sound and an entry in the gap log. Alerts run from the open page, so they stop when you close the tab or your device sleeps. Email and text alerts aren't built yet.</p></details>
@@ -399,9 +400,9 @@ function put(venue,asset,quote,pair,bid,ask,last,bq,aq){
   const k=venue+'|'+pair; const b=BOOKS[k]||(BOOKS[k]={venue,asset,quote,pair});
   if(bid>0)b.bid=bid; if(ask>0)b.ask=ask; if(last>0)b.last=last; if(bq>0)b.bq=bq; if(aq>0)b.aq=aq; b.ts=Date.now(); FEED[venue]=Date.now(); CNT[venue]=(CNT[venue]||0)+1;
 }
-const FEED={},CNT={},RATE={};setInterval(()=>{for(const v in CNT){RATE[v]=(RATE[v]||CNT[v])*.6+CNT[v]*.4;CNT[v]=0}},1000);
+const LOCALQ={KRW:1,JPY:1};const FEED={},CNT={},RATE={};setInterval(()=>{for(const v in CNT){RATE[v]=(RATE[v]||CNT[v])*.6+CNT[v]*.4;CNT[v]=0}},1000);
 let FX={USD:1,USDT:1,USDC:1,CAD:null,EUR:null};
-async function loadFx(){try{const j=await (await fetch('https://open.er-api.com/v6/latest/USD')).json();FX.CAD=j.rates.CAD;FX.EUR=j.rates.EUR;}catch(e){}}
+async function loadFx(){try{const j=await (await fetch('https://open.er-api.com/v6/latest/USD')).json();FX.CAD=j.rates.CAD;FX.EUR=j.rates.EUR;FX.KRW=j.rates.KRW;FX.JPY=j.rates.JPY;}catch(e){}}
 loadFx(); setInterval(loadFx,30*60e3);
 
 function ws(url,onopen,onmsg,ping){
@@ -429,6 +430,16 @@ const BS={btcusd:['BTC','USD'],ethusd:['ETH','USD'],solusd:['SOL','USD'],btceur:
 ws('wss://ws.bitstamp.net',s=>Object.keys(BS).forEach(p=>s.send(JSON.stringify({event:'bts:subscribe',data:{channel:'order_book_'+p}}))),
   m=>{if(m.event!=='data'||!m.data||!m.data.bids)return;const p=m.channel.replace('order_book_','');const[a,q]=BS[p];
     put('Bitstamp',a,q,a+'/'+q,+(m.data.bids[0]||[])[0],+(m.data.asks[0]||[])[0],0,+(m.data.bids[0]||[])[1],+(m.data.asks[0]||[])[1])});
+// Upbit (Korea, KRW) - binary frames
+(function upbit(){let s;try{s=new WebSocket('wss://api.upbit.com/websocket/v1')}catch(e){return setTimeout(upbit,5000)}
+  s.binaryType='arraybuffer';
+  s.onopen=()=>s.send(JSON.stringify([{ticket:'gw'+Date.now()},{type:'orderbook',codes:['KRW-BTC','KRW-ETH','KRW-SOL','KRW-USDT']},{format:'SIMPLE'}]));
+  s.onmessage=e=>{try{const m=JSON.parse(typeof e.data==='string'?e.data:new TextDecoder().decode(e.data));if(m.ty!=='orderbook'||!m.obu||!m.obu[0])return;
+    const a=m.cd.split('-')[1],u=m.obu[0];put('Upbit',a,'KRW',a+'/KRW',+u.bp,+u.ap,0,+u.bs,+u.as)}catch(_){}};
+  s.onclose=()=>setTimeout(upbit,3000);s.onerror=()=>s.close();})();
+// bitFlyer (Japan, JPY)
+ws('wss://ws.lightstream.bitflyer.com/json-rpc',s=>['BTC_JPY','ETH_JPY','SOL_JPY'].forEach((p,i)=>s.send(JSON.stringify({method:'subscribe',params:{channel:'lightning_ticker_'+p},id:i}))),
+  m=>{if(m.method!=='channelMessage')return;const d=m.params.message;const[a,q]=d.product_code.split('_');put('bitFlyer',a,q,a+'/'+q,+d.best_bid,+d.best_ask,+d.ltp,+d.best_bid_size,+d.best_ask_size)});
 // OKX
 const OK=['BTC-USDT','ETH-USDT','SOL-USDT','BTC-USDC','ETH-USDC','SOL-USDC'];
 ws('wss://ws.okx.com/ws/v5/public',s=>s.send(JSON.stringify({op:'subscribe',args:OK.map(i=>({channel:'tickers',instId:i}))})),
@@ -456,6 +467,10 @@ $$('#thr button').forEach(b=>{b.classList.toggle('on',+b.dataset.v===THR);b.oncl
 const nb=$('#notifBtn'),nb2=$('#notifBtn2');
 function nbState(){const on=('Notification' in window&&Notification.permission==='granted');[nb,nb2].forEach(b=>{b.textContent=on?'Alerts on':'Alert me';b.classList.toggle('armed',on)})}
 nb.onclick=nb2.onclick=()=>openAlerts();
+window.__testAlert=()=>{const msg='Test alert: this is what a gap alert looks like. Example: Kraken SOL/CAD ask is 3.20% under the market. $1,000 there = +$32 vs everywhere else.';
+  $('#toast .h').textContent='Test alert';$('#toastB').textContent=msg;$('#toast').classList.add('show');setTimeout(()=>{$('#toast').classList.remove('show');$('#toast .h').textContent='Gap detected'},6000);
+  if('Notification' in window&&Notification.permission==='granted')try{new Notification('Test alert',{body:msg})}catch(_){}
+  beep(true)};
 window.__enableBrowser=async()=>{if('Notification' in window)await Notification.requestPermission();nbState();beep(true)}; nbState();
 let actx; function beep(force){try{actx=actx||new AudioContext();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;o.type='sine';g.gain.setValueAtTime(.0001,actx.currentTime);g.gain.exponentialRampToValueAtTime(.15,actx.currentTime+.02);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+.35);o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+.4)}catch(e){}}
 
@@ -482,13 +497,14 @@ renderLog();
 
 /* board render */
 function render(){
-  const venues=['Kraken','Coinbase','Binance','Bitstamp','OKX'];
+  const venues=['Kraken','Coinbase','Binance','Bitstamp','OKX','Upbit','bitFlyer'];
   const live=venues.filter(v=>Date.now()-(FEED[v]||0)<30e3);
   $('#feeds').innerHTML='<span style="color:var(--mute)">feed health</span>'+venues.map(v=>{const age=FEED[v]?Date.now()-FEED[v]:null;const ok=age!=null&&age<30e3;return `<span><span class="dot ${ok?'on':''}"></span>${v} <b style="color:var(--fg);font-weight:400">${ok?(RATE[v]||0).toFixed(1)+'/s':'down'}</b> · ${age==null?'—':age<1000?age+'ms ago':(age/1000).toFixed(1)+'s ago'}</span>`}).join('');
   const nBooks=Object.values(BOOKS).filter(b=>Date.now()-b.ts<60e3).length;
-  $('#navFeeds').textContent=live.length?`${live.length}/5 exchanges · ${nBooks} books`:'connecting…';
+  $('#navFeeds').textContent=live.length?`${live.length}/7 exchanges · ${nBooks} books`:'connecting…';
   $('#navDot').className='dot '+(live.length?'on':'');
   for(const q of ['CAD','EUR'])ANCHOR[q]=liveFx(q);
+  ANCHOR.KRW=FX.KRW;ANCHOR.JPY=FX.JPY; // bank rate only: the local premium IS the signal
   let html='', worst=0;
   for(const a of ASSETS){
     const fair=fairOf(a); const rows=Object.values(BOOKS).filter(b=>b.asset===a).sort((x,y)=>(x.quote>y.quote)-(x.quote<y.quote)||x.venue.localeCompare(y.venue));
@@ -500,8 +516,9 @@ function render(){
       if(fair&&usd){dev=(usd/fair-1)*100;
         const askU=b.ask&&toUsd(b.ask,b.quote), bidU=b.bid&&toUsd(b.bid,b.quote);
         const cheap=askU?(1-askU/fair)*100:-dev, rich=bidU?(bidU/fair-1)*100:dev;
-        if(cheap>=THR&&!stale){cls='cheap';logGap(b,'cheap',cheap,askU,fair)}
-        else if(rich>=THR&&!stale){cls='rich';logGap(b,'rich',rich,bidU,fair)}
+        const loc=LOCALQ[b.quote];
+        if(cheap>=THR&&!stale){cls='cheap';if(!loc)logGap(b,'cheap',cheap,askU,fair)}
+        else if(rich>=THR&&!stale){cls='rich';if(!loc)logGap(b,'rich',rich,bidU,fair)}
         worst=Math.max(worst,Math.abs(dev));}
       const w=dev==null?0:Math.min(50,Math.abs(dev)/(THR*2)*50);
       const bar=dev==null?'':`<i style="${dev<0?'right:50%':'left:50%'};width:${w}%"></i>`;
@@ -523,7 +540,8 @@ function openAlerts(){$('#mThr').textContent=THR;mod.classList.add('show');$$('.
 $('#mClose').onclick=()=>mod.classList.remove('show');mod.onclick=e=>{if(e.target===mod)mod.classList.remove('show')};
 $$('.opt').forEach(o=>o.onclick=()=>{$$('.opt').forEach(x=>x.classList.remove('on'));o.classList.add('on');const c=o.dataset.c;
   if(c==='browser'){const on=('Notification' in window&&Notification.permission==='granted');
-    mp.innerHTML=on?'Browser alerts are on. Keep this tab open and you will get a notification and a sound when a gap opens.':'Works today. Your browser will ask for permission. Keep this tab open: alerts come from this page, there is no server.<br><button class="btn solid" id="mGo">Turn on browser alerts</button>';
+    mp.innerHTML=(on?'Browser alerts are on. Keep this tab open and you will get a notification and a sound when a gap opens.':'Works today. Your browser will ask for permission. Keep this tab open: alerts come from this page, there is no server.<br><button class="btn solid" id="mGo">Turn on browser alerts</button>')+' <button class="btn" id="mTest" style="margin-top:12px">Send a test alert</button>';
+    $('#mTest').onclick=()=>window.__testAlert();
     const g=$('#mGo');if(g)g.onclick=async()=>{await window.__enableBrowser();openAlerts();$$('.opt')[0].click()}}
   else{const w=localStorage['want_'+c];
     mp.innerHTML=w?`Noted. If enough people ask for ${c==='email'?'email':'text'} alerts, we will build them. Browser alerts work today.`:`${c==='email'?'Email':'Text'} alerts aren't live yet. Browser alerts work today. If enough people want this, we will build it.<br><button class="btn" id="mWant">I want ${c==='email'?'email':'text'} alerts</button>`;
@@ -538,6 +556,8 @@ const LINES=[
   {v:'Bitstamp',k:'Bitstamp|{A}/USD',c:'#3ee58a'},
   {v:'OKX',k:'OKX|{A}/USDT',c:'#e9e9e6'},
   {v:'Kraken CAD',k:'Kraken|{A}/CAD',c:'#ff4b3e',dash:true,local:true},
+  {v:'Upbit KRW',k:'Upbit|{A}/KRW',c:'#62d6ff',dash:true,local:true,asia:'Korea'},
+  {v:'bitFlyer JPY',k:'bitFlyer|{A}/JPY',c:'#ff8fd0',dash:true,local:true,asia:'Japan'},
 ];
 const SER={BTC:{},ETH:{},SOL:{}}; let LA='BTC', CMODE='px';
 function lineVal(L,a){const b=BOOKS[L.k.replace('{A}',a)];if(!b||Date.now()-b.ts>90e3)return null;const m=mid(b);return m?toUsd(m,b.quote):null}
@@ -569,7 +589,7 @@ function drawLive(){
   $('#liveNow').textContent=fair?`market ${a} $${fmt(fair,2)}`:'';
 }
 const PREV={};const fmtQ=q=>q>=100?fmt(q,0):q>=1?fmt(q,2):fmt(q,4);
-function cheapestOf(a){let best=null;for(const L of LINES){const b=BOOKS[L.k.replace('{A}',a)];if(!b||!b.ask||Date.now()-b.ts>90e3)continue;const u=toUsd(b.ask,b.quote);if(u&&(!best||u<best.u))best={v:L.v,u}}return best}
+function cheapestOf(a){let best=null;for(const L of LINES){if(L.asia)continue;const b=BOOKS[L.k.replace('{A}',a)];if(!b||!b.ask||Date.now()-b.ts>90e3)continue;const u=toUsd(b.ask,b.quote);if(u&&(!best||u<best.u))best={v:L.v,u}}return best}
 function drawPulse(){
   const assets=['BTC','ETH','SOL'];let h='<tr><th>Exchange</th>'+assets.map(a=>`<th>${a}</th>`).join('')+'</tr>';
   const ch={};assets.forEach(a=>{const c=cheapestOf(a);ch[a]=c&&c.v});
@@ -582,19 +602,21 @@ function drawPulse(){
   $('#pulse').innerHTML=h;
 }
 function spreadOf(a){let lo=null,hi=null;
-  for(const b of Object.values(BOOKS)){if(b.asset!==a||Date.now()-b.ts>60e3)continue;
+  for(const b of Object.values(BOOKS)){if(b.asset!==a||Date.now()-b.ts>60e3||LOCALQ[b.quote])continue;
     const ask=b.ask&&toUsd(b.ask,b.quote),bid=b.bid&&toUsd(b.bid,b.quote);
     if(ask&&(!lo||ask<lo.p))lo={p:ask,b};if(bid&&(!hi||bid>hi.p))hi={p:bid,b}}
   return lo&&hi?{lo,hi,gap:Math.max(0,(hi.p/lo.p-1)*100)}:null}
+function asiaLine(a){const f=fairOf(a);if(!f)return '';const parts=LINES.filter(L=>L.asia).map(L=>{const v=lineVal(L,a);if(!v)return null;const d=(v/f-1)*100;return `${L.asia} <b style="color:${d>0?'var(--up)':'var(--hot2)'}">${d>0?'+':''}${d.toFixed(2)}%</b>`}).filter(Boolean);
+  return parts.length?`<span class="fill">${a} in ${parts.join(' · ')} vs the world. Local markets: trading them needs a local bank account.</span>`:''}
 function verdict(){
   const a=LA,s=spreadOf(a);if(!s)return;const box=$('#gapBox');
   $('#gapLbl').textContent=`Biggest ${a} gap right now`;
   $('#gapNum').textContent=s.gap.toFixed(2)+'%';
   const nm=x=>`${x.b.venue} <span class="mono" style="color:var(--mute);font-size:.85em">${x.b.pair}</span>`;
   if(s.gap>=THR&&s.lo.b.venue!==s.hi.b.venue){box.classList.add('open');
-    const fill=Math.min(s.lo.b.aq||0,s.hi.b.bq||0);$('#gapSay').innerHTML=`<b>${a} is ${s.gap.toFixed(2)}% cheaper on ${nm(s.lo)}.</b> Buy at $${fmt(s.lo.p,2)}, sell on ${nm(s.hi)} at $${fmt(s.hi.p,2)}. About +${money(10*s.gap)} per $1,000 before fees.`+(fill?`<br><span class="fill">Fillable at those exact prices right now: <b>${fmtQ(fill)} ${a}</b> (~${money(fill*s.lo.p)}). More may sit deeper in the book.</span>`:'')}
+    const fill=Math.min(s.lo.b.aq||0,s.hi.b.bq||0);$('#gapSay').innerHTML=`<b>${a} is ${s.gap.toFixed(2)}% cheaper on ${nm(s.lo)}.</b> Buy at $${fmt(s.lo.p,2)}, sell on ${nm(s.hi)} at $${fmt(s.hi.p,2)}. About +${money(10*s.gap)} per $1,000 before fees.`+(fill?`<br><span class="fill">Fillable at those exact prices right now: <b>${fmtQ(fill)} ${a}</b> (~${money(fill*s.lo.p)}). More may sit deeper in the book.</span>`:'')+asiaLine(a)}
   else{box.classList.remove('open');
-    $('#gapSay').innerHTML=`<b>No gap.</b> All five exchanges agree within your ${THR}% line. Cheapest ${a} this second: ${nm(s.lo)} at $${fmt(s.lo.p,2)}`+(s.lo.b.aq?`, ${fmtQ(s.lo.b.aq)} ${a} (~${money(s.lo.b.aq*s.lo.p)}) available at that price.`:'.')}
+    $('#gapSay').innerHTML=`<b>No gap.</b> The global exchanges agree within your ${THR}% line. Cheapest ${a} this second: ${nm(s.lo)} at $${fmt(s.lo.p,2)}`+(s.lo.b.aq?`, ${fmtQ(s.lo.b.aq)} ${a} (~${money(s.lo.b.aq*s.lo.p)}) available at that price.`:'.')+asiaLine(a)}
   const sb=spreadOf('BTC'),cs=cheapestOf('SOL');
   if(sb)$('#useArb').innerHTML=`<span>widest BTC gap</span>${sb.gap.toFixed(2)}%`;
   if(cs)$('#useDca').innerHTML=`<span>cheapest SOL</span>${cs.v} · $${fmt(cs.u,2)}`;
@@ -605,6 +627,7 @@ const TKP={};
 function drawTick(){TK.forEach((t,i)=>{const v=lineVal(t.L,t.a);if(!v)return;const prev=TKP[i];TKP[i]=v;
   const txt='$'+fmt(v,v<100?2:0);$$(`[data-q="${i}"]`).forEach(e=>{if(e.textContent!==txt)e.textContent=txt});
   if(prev&&v!==prev)$$(`[data-c="${i}"]`).forEach(e=>{e.textContent=v>prev?'▲':'▼';e.className='c '+(v>prev?'up':'dn')})})}
+$('#testBtn').onclick=()=>window.__testAlert();
 function liveTick(){sample();drawLive();drawPulse();verdict();drawTick()}
 setInterval(liveTick,1000);liveTick();
 $$('#liveTabs .tab').forEach(b=>b.onclick=()=>{$$('#liveTabs .tab').forEach(x=>x.classList.remove('on'));b.classList.add('on');LA=b.dataset.a;liveTick()});
