@@ -326,13 +326,13 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap}
     <div class="use">
       <div class="row"><div class="n">Play one</div><div><h3>Buy where it's cheap, sell where it isn't.</h3><p>When one exchange trades under the rest past your line, buy there and sell on the expensive one. You need money on both first, and round-trip fees run about 0.2–0.5%, so tiny gaps aren't worth it.</p></div><div class="live" id="useArb"><span>right now</span>—</div></div>
       <div class="row"><div class="n">Play two</div><div><h3>Just buy wherever it's cheapest.</h3><p>Buying every week anyway? The table tags the cheapest exchange for each coin, live. Yesterday that was a 66% discount on a DCA buy. On a normal day it's a few dollars.</p></div><div class="live" id="useDca"><span>cheapest SOL</span>—</div></div>
-      <div class="row"><div class="n">Stay ready</div><div><h3>Leave the tab open. Get pinged.</h3><p>Pick your line above. When any of the 36 books crosses it, you get a browser notification, a sound and a log entry with what $1,000 would have made.</p></div><div class="live" style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"><button class="btn" id="testBtn">Test alert</button><button class="btn solid" id="notifBtn2">Alert me</button></div></div>
+      <div class="row"><div class="n">Stay ready</div><div><h3>Leave the tab open. Get pinged.</h3><p>Pick your line above. When any book crosses it, you get a browser notification, a sound and a log entry with what $1,000 would have made.</p></div><div class="live" style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"><button class="btn" id="testBtn">Test alert</button><button class="btn solid" id="notifBtn2">Alert me</button></div></div>
     </div>
 
     <div class="k" style="margin-top:90px">Gap log · this browser</div>
     <div class="logl" id="log"></div>
 
-    <details class="allb"><summary>All 36 books, every currency</summary>
+    <details class="allb"><summary>Every book, every currency</summary>
       <p class="lede" style="margin:0 0 24px;font-size:15px">Market price = median of the USD, USDT and USDC books. CAD and EUR books convert at the rate their own books imply, checked against the daily bank rate.</p>
       <div id="board"></div>
     </details>
@@ -366,7 +366,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap}
 <div class="modal" id="alertModal"><div class="sheet">
   <button class="x" id="mClose" aria-label="Close">×</button>
   <h4>How should we ping you?</h4>
-  <p class="sm">You get pinged when any of the 36 books passes your line (now <span id="mThr">1</span>%).</p>
+  <p class="sm">You get pinged when any book passes your line (now <span id="mThr">1</span>%).</p>
   <div class="opts">
     <button class="opt" data-c="browser">Browser <small class="ok">live</small></button>
     <button class="opt" data-c="email">Email <small class="soon">soon</small></button>
