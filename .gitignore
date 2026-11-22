@@ -1,0 +1,9 @@
+launch/
+video/
+_og/
+*.bak
+data/k_*.json
+brand/banner.webp
+brand/pfp.webp
+.vercel/
+node_modules/

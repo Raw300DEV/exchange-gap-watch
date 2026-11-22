@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Live exchange price gaps</title>
+<meta property="og:title" content="Kraken sold SOL for C$32. Everyone else: C$96.">
+<meta property="og:description" content="Watch five exchanges live and catch the next misprice.">
+<meta property="og:image" content="https://misprint.bond/media/og.png">
+<meta property="og:url" content="https://misprint.bond/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://misprint.bond/media/og.png">
+<meta name="description" content="Yesterday Kraken sold SOL for C$32 while every other exchange charged C$96. Watch five exchanges live and catch the next misprice.">
+<link rel="icon" href="brand/favicon.png">
+<link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050506; --bg2:#0b0b0d; --line:#17171a; --line2:#25252a;
+  --fg:#f2f2ef; --mute:#8a8a90; --dim:#55555c;
+  --up:#3ee58a; --hot:#ff4b3e; --hot2:#ff8a7e;
+  --sans:"Geist",system-ui,sans-serif; --mono:"Geist Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);color:var(--fg);font-family:var(--sans);-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+body{overflow-x:hidden}
+a{color:inherit}
+.mono{font-family:var(--mono)}
+.wrap{max-width:1280px;margin:0 auto;padding:0 40px}
+button{font:inherit;color:inherit}
+
+/* nav */
+nav{position:sticky;top:0;z-index:20;background:rgba(5,5,6,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.mark{display:flex;align-items:center;gap:12px;font-weight:500;letter-spacing:-.01em;text-decoration:none}
+.mark img{width:34px;height:34px;border-radius:50%;display:block}
+.navr{display:flex;gap:10px;align-items:center}
+.stat{font:400 12px var(--mono);color:var(--mute);display:flex;gap:8px;align-items:center;white-space:nowrap}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--dim)}
+.dot.on{background:var(--up);box-shadow:0 0 10px var(--up)}
+.dot.hot{background:var(--hot);box-shadow:0 0 10px var(--hot)}
+.btn{font:500 14px var(--sans);border-radius:99px;padding:10px 18px;border:1px solid var(--line2);background:transparent;cursor:pointer;text-decoration:none;display:inline-flex;gap:8px;align-items:center;transition:border-color .2s,background .2s;white-space:nowrap}
+.btn:hover{border-color:var(--fg)}
+.btn.solid{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.btn.solid.armed{background:var(--up);border-color:var(--up)}
+#caBtn{display:none}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:99px;padding:3px}
+.seg button{font:500 12px var(--mono);padding:7px 12px;background:none;border:0;border-radius:99px;color:var(--mute);cursor:pointer}
+.seg button.on{background:var(--fg);color:var(--bg)}
+
+/* hero = the tool */
+.top{padding:72px 0 28px;display:grid;grid-template-columns:1.25fr 1fr;gap:60px;align-items:end}
+.eyebrow{font:400 12px var(--mono);color:var(--mute);letter-spacing:.06em;text-transform:uppercase;display:flex;gap:10px;align-items:center}
+h1{font:500 clamp(34px,3.9vw,56px)/1.04 var(--sans);letter-spacing:-.045em;margin-top:18px}
+h1 .r{color:var(--hot)} h1 .g{color:var(--up)}
+.sub{color:#b4b4b9;font-size:18px;line-height:1.5;margin-top:20px;max-width:30em}
+.gap{border-left:1px solid var(--line2);padding-left:36px}
+.gap .lbl{font:400 12px var(--mono);color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
+.gap .num{font:300 clamp(64px,7vw,104px)/1 var(--sans);letter-spacing:-.05em;margin-top:10px;font-variant-numeric:tabular-nums;color:var(--up);transition:color .3s}
+.gap.open .num{color:var(--hot)}
+.gap .say{font-size:16px;line-height:1.5;color:#c9c9ce;margin-top:14px;min-height:3em}
+.gap .say b{font-weight:500;color:var(--fg)}
+.gap.open .say b{color:var(--hot)}
+
+.tool{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:18px 0}
+.tabs{display:flex;gap:4px}
+.tab{font:500 13px var(--mono);padding:8px 14px;border-radius:99px;border:1px solid transparent;background:none;color:var(--mute);cursor:pointer}
+.tab.on{border-color:var(--line2);color:var(--fg)}
+.leg{display:flex;flex-wrap:wrap;gap:6px 18px;font:400 12px var(--mono);color:var(--mute);padding-bottom:6px}
+.leg span{display:flex;align-items:center;gap:7px}
+.leg i{width:14px;height:2px;display:inline-block}
+.leg b{color:var(--fg);font-weight:400;font-variant-numeric:tabular-nums}
+#liveCv{width:100%;height:420px;display:block}
+.axisnote{display:flex;justify-content:space-between;font:400 11.5px var(--mono);color:var(--dim);padding:8px 0 18px}
+
+table.px{width:100%;border-collapse:collapse;font:400 14px var(--mono);font-variant-numeric:tabular-nums}
+table.px th{font:400 11px var(--mono);color:var(--dim);text-transform:uppercase;letter-spacing:.08em;text-align:right;padding:14px 0 10px;border-top:1px solid var(--line)}
+table.px th:first-child,table.px td:first-child{text-align:left}
+table.px td{padding:13px 0;border-top:1px solid var(--line);text-align:right;transition:color .5s}
+table.px td:first-child{font:400 15px var(--sans)}
+table.px td:first-child i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:12px}
+table.px .d{color:var(--dim);font-size:12px;margin-left:10px;display:inline-block;min-width:6.5em}
+table.px .d.dn{color:var(--hot2)} table.px .d.up{color:var(--up)}
+table.px td.flash-up .p{color:var(--up)} table.px td.flash-dn .p{color:var(--hot2)}
+table.px .cheap{font:500 10px var(--mono);color:var(--bg);background:var(--up);border-radius:99px;padding:2px 7px;margin-right:10px;letter-spacing:.04em;text-transform:uppercase;vertical-align:1px}
+table.px tr.local td:first-child{color:var(--mute)}
+.feeds{display:flex;gap:16px;flex-wrap:wrap;font:400 11.5px var(--mono);color:var(--dim);padding:16px 0 22px}
+.feeds span{display:flex;gap:6px;align-items:center}
+
+.fill{display:block;font-size:14px;color:var(--mute);margin-top:8px}
+.feeds b{font-variant-numeric:tabular-nums}
+/* faq */
+.faq{margin-top:48px;border-top:1px solid var(--line)}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:24px;padding:24px 0;font:500 19px/1.35 var(--sans);letter-spacing:-.02em}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font:300 26px/1 var(--sans);color:var(--mute);transition:transform .25s}
+.faq details[open] summary::after{transform:rotate(45deg);color:var(--fg)}
+.faq p{color:#b4b4b9;line-height:1.65;font-size:16.5px;max-width:44em;padding:0 0 26px}
+.faq a{color:var(--fg)}
+/* vsl */
+.vsl{display:grid;grid-template-columns:1fr minmax(0,560px);gap:60px;align-items:center;padding-top:110px}
+.vsl video{width:100%;aspect-ratio:1/1;display:block;border-radius:18px;border:1px solid var(--line2);background:#000}
+.vsl .dur{font:400 12px var(--mono);color:var(--mute);margin-top:22px}
+@media (max-width:960px){.vsl{grid-template-columns:1fr;gap:28px;padding-top:80px}}
+/* alert picker */
+.modal{position:fixed;inset:0;z-index:60;background:rgba(5,5,6,.72);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
+.modal.show{display:flex}
+.sheet{width:100%;max-width:440px;background:var(--bg2);border:1px solid var(--line2);border-radius:20px;padding:28px}
+.sheet h4{font:500 22px var(--sans);letter-spacing:-.03em}
+.sheet .sm{color:var(--mute);font-size:14px;margin-top:6px;line-height:1.5}
+.opts{display:grid;gap:8px;margin-top:20px}
+.opt{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border:1px solid var(--line2);border-radius:12px;background:none;cursor:pointer;text-align:left;font:500 15px var(--sans)}
+.opt:hover,.opt.on{border-color:var(--fg)}
+.opt small{font:400 11px var(--mono);color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.opt .soon{color:var(--bg);background:var(--mute);border-radius:99px;padding:2px 8px}
+.opt .ok{color:var(--bg);background:var(--up);border-radius:99px;padding:2px 8px}
+.panel{margin-top:18px;font-size:14.5px;line-height:1.55;color:#c9c9ce;min-height:4.5em}
+.panel .btn{margin-top:12px}
+.x{float:right;background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer;line-height:1}
+/* chapters */
+.ch{padding:130px 0 0}
+.k{font:400 12px var(--mono);color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
+h2{font:500 clamp(32px,3.6vw,52px)/1.05 var(--sans);letter-spacing:-.04em;margin-top:16px;max-width:18em}
+h2 .r{color:var(--hot)} h2 .g{color:var(--up)}
+.lede{color:#b4b4b9;font-size:18px;line-height:1.55;margin-top:18px;max-width:36em}
+
+/* receipt */
+.rc{display:grid;grid-template-columns:1fr 1.5fr;gap:60px;margin-top:56px;align-items:start}
+.calc label{font:400 12px var(--mono);color:var(--mute);letter-spacing:.06em;text-transform:uppercase;display:block}
+.amt{display:flex;align-items:baseline;border-bottom:1px solid var(--line2);padding-bottom:6px;margin:10px 0 14px}
+.amt span{font:300 44px var(--sans);color:var(--mute)}
+.amt input{background:none;border:0;color:var(--fg);font:300 52px var(--sans);letter-spacing:-.04em;width:100%;outline:none}
+.big{font:300 clamp(64px,6.4vw,96px)/1 var(--sans);letter-spacing:-.05em;color:var(--hot);margin-top:30px}
+.calc p{color:var(--mute);font-size:14.5px;line-height:1.55;margin-top:14px}
+.calc p b{color:var(--fg);font-weight:500}
+.rchart .tabs{margin-bottom:8px}
+#repCv{width:100%;height:380px;display:block;cursor:crosshair}
+.scrub{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 14px;font:400 12px var(--mono);color:var(--mute);margin-top:8px}
+
+/* timeline */
+.tl{margin-top:56px;border-top:1px solid var(--line)}
+.ev{display:grid;grid-template-columns:200px 1fr;gap:40px;padding:22px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.ev .t{font:400 13px var(--mono);color:var(--mute)}
+.ev .w{font-size:19px;line-height:1.45;letter-spacing:-.01em}
+.ev .w em{font-style:normal;color:var(--hot)}
+.ev .w small{display:block;color:var(--mute);font-size:15px;margin-top:4px}
+.why{display:grid;grid-template-columns:200px 1fr;gap:40px;margin-top:48px}
+.why p{font-size:19px;line-height:1.6;color:#c9c9ce;max-width:38em}
+.why p+p{margin-top:16px}
+.why b{color:var(--fg);font-weight:500}
+
+/* use */
+.use{margin-top:56px;border-top:1px solid var(--line)}
+.use .row{display:grid;grid-template-columns:200px 1fr auto;gap:40px;padding:30px 0;border-bottom:1px solid var(--line);align-items:center}
+.use .n{font:400 13px var(--mono);color:var(--mute)}
+.use h3{font:500 26px/1.2 var(--sans);letter-spacing:-.03em}
+.use p{color:var(--mute);margin-top:8px;line-height:1.55;max-width:40em}
+.use .live{font:400 14px var(--mono);color:var(--fg);text-align:right;white-space:nowrap}
+.use .live span{display:block;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+
+/* log + books */
+.logl{margin-top:30px;border-top:1px solid var(--line)}
+.logl .e{display:grid;grid-template-columns:200px 1fr auto;gap:40px;padding:16px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.logl .e .t{font:400 12px var(--mono);color:var(--mute)}
+.logl .e b{color:var(--hot);font-weight:500}
+.logl .e .m{font:400 20px var(--mono);color:var(--up)}
+.logl .empty{padding:22px 0;color:var(--mute);border-bottom:1px solid var(--line)}
+details.allb{margin-top:60px;border-top:1px solid var(--line)}
+details.allb summary{cursor:pointer;list-style:none;padding:20px 0;font:400 12px var(--mono);color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
+details.allb summary::after{content:"  +"} details.allb[open] summary::after{content:"  −"}
+.grp{margin-bottom:22px}
+.grpH{display:flex;align-items:baseline;justify-content:space-between;padding:0 0 8px;border-bottom:1px solid var(--line2)}
+.grpH h3{font:500 20px var(--sans)}
+.grpH .fair{font:400 12px var(--mono);color:var(--mute)}
+.brow{display:grid;grid-template-columns:130px 1fr 150px 120px 1.2fr 80px;gap:14px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font:400 13px var(--mono)}
+.brow .pair{color:var(--mute)} .brow .px2,.brow .usd,.brow .dev{text-align:right} .brow .usd{color:var(--mute)}
+.bbar{position:relative;height:4px;background:var(--line);border-radius:2px}
+.bbar::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--line2)}
+.bbar i{position:absolute;top:0;bottom:0;border-radius:2px;background:var(--up)}
+.brow.cheap .dev{color:var(--hot)} .brow.cheap .bbar i{background:var(--hot)}
+.brow.stale{opacity:.4}
+
+footer{margin-top:130px;border-top:1px solid var(--line);padding:36px 0 60px;color:var(--dim);font-size:13px;line-height:1.6}
+footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap}
+
+.toast{position:fixed;right:24px;bottom:24px;z-index:50;background:var(--bg2);border:1px solid var(--hot);border-radius:14px;padding:16px 18px;max-width:340px;transform:translateY(160%);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.toast.show{transform:none}
+.toast .h{font:400 11px var(--mono);color:var(--hot);letter-spacing:.06em;text-transform:uppercase}
+.toast .b{margin-top:6px;line-height:1.45;font-size:14px}
+
+@media (max-width:960px){
+  .wrap{padding:0 20px}
+  .top{grid-template-columns:1fr;gap:28px;padding-top:44px}
+  .gap{border-left:0;padding-left:0;border-top:1px solid var(--line2);padding-top:22px}
+  #liveCv{height:280px}
+  table.px{font-size:12px} table.px td:first-child{font-size:13px} table.px .d{display:block;margin:2px 0 0;min-width:0} table.px .cheap{display:none}
+  .rc{grid-template-columns:1fr;gap:36px} #repCv{height:260px}
+  .ev,.why,.use .row,.logl .e{grid-template-columns:1fr;gap:8px}
+  .use .live{text-align:left}
+  .brow{grid-template-columns:1fr auto} .brow .usd,.brow .bc{display:none}
+  .ch{padding-top:96px}
+  .stat.hideS{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <a class="mark" href="#"><img src="brand/pfp512.png" alt=""><span id="brandName"></span></a>
+  <div class="navr">
+    <span class="stat hideS"><span class="dot" id="navDot"></span><span id="navFeeds">connecting…</span></span>
+    <button class="btn" id="caBtn"></button>
+    <button class="btn solid" id="notifBtn">Alert me</button>
+  </div>
+</div></nav>
+
+<main class="wrap">
+  <section class="top">
+    <div>
+      <div class="eyebrow"><span class="dot hot"></span>Yesterday on Kraken</div>
+      <h1>Kraken sold SOL for <span class="r">C$32</span>. Every other exchange sold it for <span class="g">C$96</span>.</h1>
+      <p class="sub">Exchanges misprice. This page watches five of them, live, and tells you the second one breaks from the rest.</p>
+    </div>
+    <div class="gap" id="gapBox">
+      <div class="lbl" id="gapLbl">Biggest BTC gap right now</div>
+      <div class="num" id="gapNum">—</div>
+      <div class="say" id="gapSay">Connecting to Kraken, Coinbase, Binance, Bitstamp and OKX…</div>
+    </div>
+  </section>
+
+  <section class="tool" id="live">
+    <div class="bar">
+      <div class="tabs" id="liveTabs"><button class="tab on" data-a="BTC">BTC</button><button class="tab" data-a="ETH">ETH</button><button class="tab" data-a="SOL">SOL</button></div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <span class="stat">alert at</span>
+        <div class="seg" id="thr"><button data-v="0.5">0.5%</button><button class="on" data-v="1">1%</button><button data-v="2">2%</button><button data-v="5">5%</button></div>
+        <div class="seg" id="chartMode"><button class="on" data-m="px">$</button><button data-m="pct">%</button></div>
+      </div>
+    </div>
+    <div class="leg" id="liveLeg"></div>
+    <canvas id="liveCv"></canvas>
+    <div class="axisnote"><span id="axisL">live · one point per second</span><span id="liveNow"></span></div>
+    <table class="px" id="pulse"></table>
+    <div class="feeds" id="feeds"></div>
+  </section>
+
+  <section class="vsl" id="watch">
+    <div>
+      <div class="k">The story in 56 seconds</div>
+      <h2>What happened on Kraken, and how you <span class="g">catch the next one.</span></h2>
+      <div class="dur">0:56 · no sound needed</div>
+    </div>
+    <video id="vsl" src="media/vsl.mp4" poster="media/vsl_poster.jpg" controls playsinline muted preload="metadata"></video>
+  </section>
+
+  <section class="ch" id="receipt">
+    <div class="k">01 · What you missed</div>
+    <h2>$1,000 of SOL on Kraken yesterday was worth <span class="r">$2,996</span> everywhere else.</h2>
+    <div class="rc">
+      <div class="calc">
+        <label>If you'd put in</label>
+        <div class="amt"><span>$</span><input id="amt" value="1,000" inputmode="numeric"></div>
+        <div class="seg" id="fillMode"><button class="on" data-m="low">lowest print</button><button data-m="avg">avg fill</button><button data-m="cursor">cursor</button></div>
+        <label style="margin-top:34px">you'd walk away with</label>
+        <div class="big" id="outBig">$2,996</div>
+        <p id="outSmall"></p>
+      </div>
+      <div class="rchart">
+        <div class="tabs" id="assetTabs"><button class="tab on" data-a="SOL">SOL/CAD</button><button class="tab" data-a="BTC">BTC/CAD</button><button class="tab" data-a="ETH">ETH/CAD</button></div>
+        <div class="leg"><span><i style="background:var(--up)"></i>every other exchange</span><span><i style="background:var(--hot)"></i>Kraken CAD, lowest print</span><span><i style="background:var(--hot2);opacity:.5"></i>Kraken CAD, average fill</span></div>
+        <canvas id="repCv"></canvas>
+        <div class="scrub"><span id="scrubT">—</span><span id="scrubV">—</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ch" id="why">
+    <div class="k">02 · How it happened</div>
+    <h2>Nineteen hours where one exchange <span class="r">disagreed with the world.</span></h2>
+    <div class="tl">
+      <div class="ev"><div class="t">Nov 20 · 20:00 UTC</div><div class="w">Heavy selling hits Kraken's Canadian-dollar markets.<small>Kraken's own description of how it started.</small></div></div>
+      <div class="ev"><div class="t">Nov 20 · 21:00 UTC</div><div class="w">SOL, ETH and BTC in CAD all trade more than 5% under every other exchange.</div></div>
+      <div class="ev"><div class="t">Nov 21 · 08:00 UTC</div><div class="w">BTC prints <em>C$24,250</em>. The rest of the market: C$82,687. <em>70.7% off.</em></div></div>
+      <div class="ev"><div class="t">Nov 21 · 08:15 UTC</div><div class="w">SOL prints <em>C$32.00</em>, about US$22. Everywhere else: C$95.86. <em>66.6% off.</em></div></div>
+      <div class="ev"><div class="t">Nov 21 · 15:45 UTC</div><div class="w">The gap closes. C$31.5M traded more than 5% under the real price.<small>Kraken: no breach, "Executed trades stand."</small></div></div>
+    </div>
+    <div class="why">
+      <div class="k" style="padding-top:6px">Why</div>
+      <div>
+        <p>Every exchange runs its own order book, and traders usually keep them within a fraction of a percent. Kraken's CAD books are small, so a wave of sells moved them a long way. Blockstream's Adam Back pointed to a likely market-maker malfunction: Kraken's own USDC/CAD rate drifted far from the real one, around 1.43. Kraken hasn't confirmed a cause.</p>
+        <p><b>It stayed open because almost nobody could reach it.</b> You needed Canadian dollars already sitting on Kraken. Fat fingers, liquidation cascades, stablecoin wobbles and outages open the same kind of gap on other exchanges. The people who catch them are the ones already watching.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="ch" id="use">
+    <div class="k">03 · Catch the next one</div>
+    <h2>Trade like <span class="g">the institutions.</span></h2>
+    <p class="lede">Trading desks run cross-exchange arbitrage all day: watch every venue at once, buy where it's cheap, sell where it isn't. They do it with feeds into every exchange. This puts the same view in your browser for free.</p>
+    <div class="use">
+      <div class="row"><div class="n">Play one</div><div><h3>Buy where it's cheap, sell where it isn't.</h3><p>When one exchange trades under the rest past your line, buy there and sell on the expensive one. You need money on both first, and round-trip fees run about 0.2–0.5%, so tiny gaps aren't worth it.</p></div><div class="live" id="useArb"><span>right now</span>—</div></div>
+      <div class="row"><div class="n">Play two</div><div><h3>Just buy wherever it's cheapest.</h3><p>Buying every week anyway? The table tags the cheapest exchange for each coin, live. Yesterday that was a 66% discount on a DCA buy. On a normal day it's a few dollars.</p></div><div class="live" id="useDca"><span>cheapest SOL</span>—</div></div>
+      <div class="row"><div class="n">Stay ready</div><div><h3>Leave the tab open. Get pinged.</h3><p>Pick your line above. When any of the 36 books crosses it, you get a browser notification, a sound and a log entry with what $1,000 would have made.</p></div><div class="live"><button class="btn solid" id="notifBtn2">Alert me</button></div></div>
+    </div>
+
+    <div class="k" style="margin-top:90px">Gap log · this browser</div>
+    <div class="logl" id="log"></div>
+
+    <details class="allb"><summary>All 36 books, every currency</summary>
+      <p class="lede" style="margin:0 0 24px;font-size:15px">Market price = median of the USD, USDT and USDC books. CAD and EUR books convert at the rate their own books imply, checked against the daily bank rate.</p>
+      <div id="board"></div>
+    </details>
+  </section>
+  <section class="ch" id="faq">
+    <div class="k">04 · Questions</div>
+    <h2>Before you trust a number on this page.</h2>
+    <div class="faq">
+      <details><summary>What is this?</summary><p>A live price dashboard. It compares what BTC, ETH and SOL cost right now on Kraken, Coinbase, Binance, Bitstamp and OKX, and flags when one exchange drifts away from the rest. It shows information. It doesn't trade, hold funds or tell you what to do.</p></details>
+      <details><summary>What actually happened on Kraken?</summary><p>From about 20:00 UTC on November 20 to 15:45 UTC on November 21, Kraken's Canadian-dollar markets traded far below every other exchange. SOL printed C$32.00 while the rest of the market was near C$95.86, and BTC printed C$24,250 against about C$82,687. Kraken said it found no breach and that executed trades stand. It hasn't published a confirmed cause.</p></details>
+      <details><summary>Could anyone have bought SOL for C$32?</summary><p>Mostly no. You needed a Kraken account with Canadian dollars already on it, and new CAD only reaches Kraken by bank transfer from a Canadian account. That's a big part of why the gap stayed open for hours. The numbers on this page come from Kraken's public 15-minute price data. They're not a record of anyone's fills.</p></details>
+      <details><summary>How often do gaps like this happen?</summary><p>Rarely. Most of the time these five exchanges agree within about 0.1%, which is less than trading fees. Bigger gaps come from things like thin local-currency markets, fat-finger orders, liquidation cascades, stablecoin wobbles and exchange outages. We can't predict when the next one will happen, or whether it will.</p></details>
+      <details><summary>Where do the prices come from?</summary><p>Straight from each exchange's public market-data feed to your browser, over WebSocket connections your browser opens itself. Prices don't pass through a server of ours. If an exchange's feed lags, drops or sends a bad price, the dashboard shows exactly that.</p></details>
+      <details><summary>How is the "market price" worked out?</summary><p>It's the median of the live USD, USDT and USDC prices across the five exchanges. USDT prices are adjusted by the live USDT/USD rate. CAD and EUR prices are converted at the rate their own markets imply, which is checked against a daily bank rate and replaced by it if the two disagree by more than 2.5%.</p></details>
+      <details><summary>Why does Kraken CAD usually sit a little off the others?</summary><p>Currency conversion. Turning a CAD price into US dollars adds a small error, usually under 0.2%. That's normal. A real misprice is many times bigger, and that's what the alert line is for.</p></details>
+      <details><summary>Is a gap free money?</summary><p>No. To use a gap you need funds already on both exchanges, an account that can trade those markets, and enough depth in the order book at that price. Fees, withdrawal times, limits and slippage all eat into it, and gaps can close before you act. What the dashboard shows is a price, not a trade you're guaranteed to get.</p></details>
+      <details><summary>Do I need an account, a wallet or API keys?</summary><p>No. There's no sign-up, no wallet connection and no keys. The dashboard only reads public prices. It can't see or touch your exchange accounts.</p></details>
+      <details><summary>How do alerts work?</summary><p>Browser alerts are live. Allow notifications and keep the tab open: when any book crosses your line you get a notification, a sound and an entry in the gap log. Alerts run from the open page, so they stop when you close the tab or your device sleeps. Email and text alerts aren't built yet.</p></details>
+      <details><summary>Do you store my data?</summary><p>Your alert line and gap log are saved in your own browser and never sent to us. If you tap "I want email alerts" or "I want text alerts", we record that someone asked for that channel, nothing more. We don't collect email addresses or phone numbers. See the <a href="policy.html">policy</a>.</p></details>
+      <details><summary>Is this financial advice?</summary><p>No. Nothing here is advice or a recommendation to buy, sell or hold anything. Any action you take based on what you see here is your own decision and your own risk.</p></details>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">
+  <div>Informational dashboard only. Not financial advice. All actions are your own responsibility. <a href="policy.html">Terms, disclaimer and privacy</a><br>Prices stream straight from each exchange to your browser. Incident data: Kraken public 15-minute candles. FX: open.er-api.com.</div>
+  <div class="mono" id="footBrand"></div>
+</div></footer>
+
+<div class="modal" id="alertModal"><div class="sheet">
+  <button class="x" id="mClose" aria-label="Close">×</button>
+  <h4>How should we ping you?</h4>
+  <p class="sm">You get pinged when any of the 36 books passes your line (now <span id="mThr">1</span>%).</p>
+  <div class="opts">
+    <button class="opt" data-c="browser">Browser <small class="ok">live</small></button>
+    <button class="opt" data-c="email">Email <small class="soon">soon</small></button>
+    <button class="opt" data-c="text">Text message <small class="soon">soon</small></button>
+  </div>
+  <div class="panel" id="mPanel">Pick one.</div>
+</div></div>
+
+<div class="toast" id="toast"><div class="h">Gap detected</div><div class="b" id="toastB"></div></div>
+
+<script>
+/* ===== launch config: leave name/ticker/ca empty until the CA exists ===== */
+const BRAND = { name:"", ticker:"", ca:"" };
+if(BRAND.name){ document.getElementById('brandName').textContent=BRAND.name; document.title=BRAND.name+" · live exchange price gaps"; }
+if(BRAND.name){const v=document.getElementById('vsl');if(v)v.src='media/vsl_named.mp4';}
+if(BRAND.ca){ const b=document.getElementById('caBtn'); b.style.display='inline-flex'; b.textContent=(BRAND.ticker?'$'+BRAND.ticker+' · ':'')+BRAND.ca.slice(0,4)+'…'+BRAND.ca.slice(-4)+' · copy';
+  b.onclick=()=>{navigator.clipboard.writeText(BRAND.ca);b.textContent='copied'};
+  document.getElementById('footBrand').innerHTML='<a href="https://pump.fun/coin/'+BRAND.ca+'" target="_blank">pump.fun</a> · <a href="https://dexscreener.com/solana/'+BRAND.ca+'" target="_blank">chart</a>'; }
+
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const fmt=(v,d=2)=>v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const money=v=>'$'+Math.round(v).toLocaleString('en-US');
+const DPR=Math.min(2,window.devicePixelRatio||1);
+const utc=t=>new Date(t*1000).toISOString().slice(5,16).replace('T',' ')+' UTC';
+const C={up:'#3ee58a',hot:'#ff4b3e',hot2:'#ff8a7e',grid:'rgba(255,255,255,.05)',txt:'#55555c'};
+
+/* ================= LIVE: direct websocket feeds ================= */
+const ASSETS=['BTC','ETH','SOL','USDT'];
+const BOOKS={}; // key venue|pair -> {venue,asset,quote,pair,bid,ask,last,ts}
+function put(venue,asset,quote,pair,bid,ask,last,bq,aq){
+  const k=venue+'|'+pair; const b=BOOKS[k]||(BOOKS[k]={venue,asset,quote,pair});
+  if(bid>0)b.bid=bid; if(ask>0)b.ask=ask; if(last>0)b.last=last; if(bq>0)b.bq=bq; if(aq>0)b.aq=aq; b.ts=Date.now(); FEED[venue]=Date.now(); CNT[venue]=(CNT[venue]||0)+1;
+}
+const FEED={},CNT={},RATE={};setInterval(()=>{for(const v in CNT){RATE[v]=(RATE[v]||CNT[v])*.6+CNT[v]*.4;CNT[v]=0}},1000);
+let FX={USD:1,USDT:1,USDC:1,CAD:null,EUR:null};
+async function loadFx(){try{const j=await (await fetch('https://open.er-api.com/v6/latest/USD')).json();FX.CAD=j.rates.CAD;FX.EUR=j.rates.EUR;}catch(e){}}
+loadFx(); setInterval(loadFx,30*60e3);
+
+function ws(url,onopen,onmsg,ping){
+  let s,timer;
+  const go=()=>{try{s=new WebSocket(url)}catch(e){return setTimeout(go,5000)}
+    s.onopen=()=>{onopen(s);if(ping)timer=setInterval(()=>s.readyState===1&&s.send(ping),20000)};
+    s.onmessage=e=>{try{onmsg(e.data[0]==='{'||e.data[0]==='['?JSON.parse(e.data):e.data)}catch(_){}};
+    s.onclose=()=>{clearInterval(timer);setTimeout(go,3000)}; s.onerror=()=>s.close();};
+  go();
+}
+// Kraken v2
+const KR=['BTC/USD','ETH/USD','SOL/USD','BTC/CAD','ETH/CAD','SOL/CAD','BTC/EUR','ETH/EUR','SOL/EUR','USDT/CAD','USDT/EUR','USDT/USD'];
+ws('wss://ws.kraken.com/v2',s=>KR.forEach(sym=>s.send(JSON.stringify({method:'subscribe',params:{channel:'ticker',symbol:[sym]}}))),
+  m=>{if(m.channel!=='ticker'||!m.data)return;m.data.forEach(d=>{const[a,q]=d.symbol.split('/');put('Kraken',a,q,d.symbol,+d.bid,+d.ask,+d.last,+d.bid_qty,+d.ask_qty)})});
+// Coinbase
+const CB=['BTC-USD','ETH-USD','SOL-USD','BTC-EUR','ETH-EUR','SOL-EUR','USDT-USD'];
+ws('wss://ws-feed.exchange.coinbase.com',s=>s.send(JSON.stringify({type:'subscribe',product_ids:CB,channels:['ticker']})),
+  m=>{if(m.type!=='ticker')return;const[a,q]=m.product_id.split('-');put('Coinbase',a,q,a+'/'+q,+m.best_bid,+m.best_ask,+m.price,+m.best_bid_size,+m.best_ask_size)});
+// Binance (market-data endpoint)
+const BN={btcusdt:['BTC','USDT'],ethusdt:['ETH','USDT'],solusdt:['SOL','USDT'],btceur:['BTC','EUR'],etheur:['ETH','EUR'],soleur:['SOL','EUR']};
+ws('wss://data-stream.binance.vision/stream?streams='+Object.keys(BN).map(s=>s+'@bookTicker').join('/'),()=>{},
+  m=>{const d=m.data;if(!d||!d.s)return;const[a,q]=BN[d.s.toLowerCase()]||[];if(a)put('Binance',a,q,a+'/'+q,+d.b,+d.a,0,+d.B,+d.A)});
+// Bitstamp
+const BS={btcusd:['BTC','USD'],ethusd:['ETH','USD'],solusd:['SOL','USD'],btceur:['BTC','EUR'],etheur:['ETH','EUR']};
+ws('wss://ws.bitstamp.net',s=>Object.keys(BS).forEach(p=>s.send(JSON.stringify({event:'bts:subscribe',data:{channel:'order_book_'+p}}))),
+  m=>{if(m.event!=='data'||!m.data||!m.data.bids)return;const p=m.channel.replace('order_book_','');const[a,q]=BS[p];
+    put('Bitstamp',a,q,a+'/'+q,+(m.data.bids[0]||[])[0],+(m.data.asks[0]||[])[0],0,+(m.data.bids[0]||[])[1],+(m.data.asks[0]||[])[1])});
+// OKX
+const OK=['BTC-USDT','ETH-USDT','SOL-USDT','BTC-USDC','ETH-USDC','SOL-USDC'];
+ws('wss://ws.okx.com/ws/v5/public',s=>s.send(JSON.stringify({op:'subscribe',args:OK.map(i=>({channel:'tickers',instId:i}))})),
+  m=>{if(!m.data||!m.arg)return;m.data.forEach(d=>{const[a,q]=d.instId.split('-');put('OKX',a,q,a+'/'+q,+d.bidPx,+d.askPx,+d.last,+d.bidSz,+d.askSz)})},'ping');
+
+const ANCHOR={};
+function liveFx(q){ // median implied rate across every book quoted in q; trust it only near the daily anchor
+  const a=FX[q]; if(!a)return null;
+  const v=Object.values(BOOKS).filter(b=>b.quote===q&&Date.now()-b.ts<60e3).map(b=>{const f=fairOf(b.asset);const m=mid(b);return f&&m?m/f:null}).filter(Boolean).sort((x,y)=>x-y);
+  if(v.length<3)return a; const md=v[v.length>>1];
+  return Math.abs(md/a-1)<.025?md:a; // every CAD book broke together on Nov 20 -> fall back to the anchor
+}
+function usdt(){const v=['Coinbase|USDT/USD','Kraken|USDT/USD'].map(k=>BOOKS[k]).filter(b=>b&&Date.now()-b.ts<120e3).map(mid).filter(x=>x>.9&&x<1.1);return v.length?v[0]:1}
+const toUsd=(px,q)=>q==='USD'||q==='USDC'?px:q==='USDT'?px*usdt():(ANCHOR[q]?px/ANCHOR[q]:null);
+const mid=b=>b.bid&&b.ask?(b.bid+b.ask)/2:b.last;
+function fairOf(a){
+  if(a==='USDT')return 1;
+  const v=Object.values(BOOKS).filter(b=>b.asset===a&&(b.quote==='USD'||b.quote==='USDT'||b.quote==='USDC')&&Date.now()-b.ts<60e3).map(b=>{const m=mid(b);return m&&toUsd(m,b.quote)}).filter(Boolean).sort((x,y)=>x-y);
+  if(v.length<3)return null; const m=v.length>>1; return v.length%2?v[m]:(v[m-1]+v[m])/2;
+}
+
+/* controls */
+let THR=+(localStorage.gapThr1||1);
+$$('#thr button').forEach(b=>{b.classList.toggle('on',+b.dataset.v===THR);b.onclick=()=>{THR=+b.dataset.v;localStorage.gapThr1=THR;$$('#thr button').forEach(x=>x.classList.toggle('on',x===b))}});
+const nb=$('#notifBtn'),nb2=$('#notifBtn2');
+function nbState(){const on=('Notification' in window&&Notification.permission==='granted');[nb,nb2].forEach(b=>{b.textContent=on?'Alerts on':'Alert me';b.classList.toggle('armed',on)})}
+nb.onclick=nb2.onclick=()=>openAlerts();
+window.__enableBrowser=async()=>{if('Notification' in window)await Notification.requestPermission();nbState();beep(true)}; nbState();
+let actx; function beep(force){try{actx=actx||new AudioContext();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;o.type='sine';g.gain.setValueAtTime(.0001,actx.currentTime);g.gain.exponentialRampToValueAtTime(.15,actx.currentTime+.02);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+.35);o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+.4)}catch(e){}}
+
+/* gap log */
+let LOG=JSON.parse(localStorage.gapLog||'[]'); const lastFire={};
+function logGap(b,side,gap,pxUsd,fair){
+  const k=b.venue+b.pair+side; if(Date.now()-(lastFire[k]||0)<5*60e3)return; lastFire[k]=Date.now();
+  const made=1000*gap/100;
+  const e={t:Date.now(),venue:b.venue,pair:b.pair,side,gap,px:side==='cheap'?b.ask:b.bid,quote:b.quote,fair,made};
+  LOG.unshift(e);LOG=LOG.slice(0,50);localStorage.gapLog=JSON.stringify(LOG);renderLog();
+  const msg=`${b.venue} ${b.pair} ${side==='cheap'?'ask':'bid'} is ${fmt(gap,2)}% ${side==='cheap'?'under':'over'} the market. $1,000 there = ${side==='cheap'?'+':''}${money(made)} vs everywhere else.`;
+  $('#toastB').textContent=msg;$('#toast').classList.add('show');setTimeout(()=>$('#toast').classList.remove('show'),7000);
+  if('Notification' in window&&Notification.permission==='granted')try{new Notification('Gap: '+b.venue+' '+b.pair,{body:msg})}catch(_){}
+  beep();
+}
+function renderLog(){
+  const el=$('#log');
+  if(!LOG.length){el.innerHTML=`<div class="empty">Nothing past your ${THR}% line yet. Leave this tab open. The last time a book broke, it stayed broken for 19 hours.</div>`;return}
+  el.innerHTML=LOG.slice(0,12).map(e=>`<div class="e"><div class="t">${new Date(e.t).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+    <div>${e.venue} <b>${e.pair}</b> ${e.side==='cheap'?'ask':'bid'} ${fmt(e.px,e.px<10?4:2)} ${e.quote}, ${fmt(e.gap,2)}% ${e.side==='cheap'?'under':'over'} fair.</div>
+    <div class="m">+${money(e.made)}<span class="mono" style="font-size:11px;color:var(--mute)"> /$1k</span></div></div>`).join('');
+}
+renderLog();
+
+/* board render */
+function render(){
+  const venues=['Kraken','Coinbase','Binance','Bitstamp','OKX'];
+  const live=venues.filter(v=>Date.now()-(FEED[v]||0)<30e3);
+  $('#feeds').innerHTML='<span style="color:var(--mute)">feed health</span>'+venues.map(v=>{const age=FEED[v]?Date.now()-FEED[v]:null;const ok=age!=null&&age<30e3;return `<span><span class="dot ${ok?'on':''}"></span>${v} <b style="color:var(--fg);font-weight:400">${ok?(RATE[v]||0).toFixed(1)+'/s':'down'}</b> · ${age==null?'—':age<1000?age+'ms ago':(age/1000).toFixed(1)+'s ago'}</span>`}).join('');
+  const nBooks=Object.values(BOOKS).filter(b=>Date.now()-b.ts<60e3).length;
+  $('#navFeeds').textContent=live.length?`${live.length}/5 exchanges · ${nBooks} books`:'connecting…';
+  $('#navDot').className='dot '+(live.length?'on':'');
+  for(const q of ['CAD','EUR'])ANCHOR[q]=liveFx(q);
+  let html='', worst=0;
+  for(const a of ASSETS){
+    const fair=fairOf(a); const rows=Object.values(BOOKS).filter(b=>b.asset===a).sort((x,y)=>(x.quote>y.quote)-(x.quote<y.quote)||x.venue.localeCompare(y.venue));
+    if(!rows.length)continue;
+    html+=`<div class="grp"><div class="grpH"><h3>${a}</h3><div class="fair">fair <b>${fair?'$'+fmt(fair,a==='USDT'?4:2):'…'}</b> · ${rows.length} books</div></div>`;
+    for(const b of rows){
+      const m=mid(b); const usd=m&&toUsd(m,b.quote); const stale=Date.now()-b.ts>60e3;
+      let dev=null,cls='';
+      if(fair&&usd){dev=(usd/fair-1)*100;
+        const askU=b.ask&&toUsd(b.ask,b.quote), bidU=b.bid&&toUsd(b.bid,b.quote);
+        const cheap=askU?(1-askU/fair)*100:-dev, rich=bidU?(bidU/fair-1)*100:dev;
+        if(cheap>=THR&&!stale){cls='cheap';logGap(b,'cheap',cheap,askU,fair)}
+        else if(rich>=THR&&!stale){cls='rich';logGap(b,'rich',rich,bidU,fair)}
+        worst=Math.max(worst,Math.abs(dev));}
+      const w=dev==null?0:Math.min(50,Math.abs(dev)/(THR*2)*50);
+      const bar=dev==null?'':`<i style="${dev<0?'right:50%':'left:50%'};width:${w}%"></i>`;
+      html+=`<div class="brow ${cls} ${stale?'stale':''}"><div class="venue">${b.venue}</div><div class="pair">${b.pair}</div>
+        <div class="px2">${m?fmt(m,m<10?4:2)+' <span style="color:var(--dim)">'+b.quote+'</span>':'—'}</div>
+        <div class="usd">${usd&&b.quote!=='USD'?'$'+fmt(usd,usd<10?4:2):''}</div>
+        <div class="bc"><div class="bbar">${bar}</div></div>
+        <div class="dev">${dev==null?'—':(dev>0?'+':'')+fmt(dev,2)+'%'}</div></div>`;
+    }
+    html+='</div>';
+  }
+  $('#board').innerHTML=html||'<div class="empty">Opening feeds to five exchanges…</div>';
+}
+setInterval(render,1000); render();
+
+/* ================= ALERT PICKER (browser live; email/text = demand count only) ================= */
+const mod=$('#alertModal'),mp=$('#mPanel');
+function openAlerts(){$('#mThr').textContent=THR;mod.classList.add('show');$$('.opt').forEach(o=>o.classList.remove('on'));mp.textContent='Pick one.'}
+$('#mClose').onclick=()=>mod.classList.remove('show');mod.onclick=e=>{if(e.target===mod)mod.classList.remove('show')};
+$$('.opt').forEach(o=>o.onclick=()=>{$$('.opt').forEach(x=>x.classList.remove('on'));o.classList.add('on');const c=o.dataset.c;
+  if(c==='browser'){const on=('Notification' in window&&Notification.permission==='granted');
+    mp.innerHTML=on?'Browser alerts are on. Keep this tab open and you will get a notification and a sound when a gap opens.':'Works today. Your browser will ask for permission. Keep this tab open: alerts come from this page, there is no server.<br><button class="btn solid" id="mGo">Turn on browser alerts</button>';
+    const g=$('#mGo');if(g)g.onclick=async()=>{await window.__enableBrowser();openAlerts();$$('.opt')[0].click()}}
+  else{const w=localStorage['want_'+c];
+    mp.innerHTML=w?`Noted. If enough people ask for ${c==='email'?'email':'text'} alerts, we will build them. Browser alerts work today.`:`${c==='email'?'Email':'Text'} alerts aren't live yet. Browser alerts work today. If enough people want this, we will build it.<br><button class="btn" id="mWant">I want ${c==='email'?'email':'text'} alerts</button>`;
+    const b=$('#mWant');if(b)b.onclick=()=>{localStorage['want_'+c]=1;fetch('/api/want?ch='+c).catch(()=>{});o.click()}}
+});
+
+/* ================= LIVE CHART + TABLE + GAP ================= */
+const LINES=[
+  {v:'Kraken',k:'Kraken|{A}/USD',c:'#b9a8ff'},
+  {v:'Coinbase',k:'Coinbase|{A}/USD',c:'#6aa5ff'},
+  {v:'Binance',k:'Binance|{A}/USDT',c:'#f2cc3a'},
+  {v:'Bitstamp',k:'Bitstamp|{A}/USD',c:'#3ee58a'},
+  {v:'OKX',k:'OKX|{A}/USDT',c:'#e9e9e6'},
+  {v:'Kraken CAD',k:'Kraken|{A}/CAD',c:'#ff4b3e',dash:true,local:true},
+];
+const SER={BTC:{},ETH:{},SOL:{}}; let LA='BTC', CMODE='px';
+function lineVal(L,a){const b=BOOKS[L.k.replace('{A}',a)];if(!b||Date.now()-b.ts>90e3)return null;const m=mid(b);return m?toUsd(m,b.quote):null}
+function sample(){const t=Date.now();for(const a of ['BTC','ETH','SOL'])for(const L of LINES){const v=lineVal(L,a);const arr=SER[a][L.v]||(SER[a][L.v]=[]);if(v)arr.push([t,v]);while(arr.length&&t-arr[0][0]>300e3)arr.shift()}}
+const lcv=$('#liveCv'),lcx=lcv.getContext('2d');let LW,LH;
+function lsize(){LW=lcv.clientWidth;LH=lcv.clientHeight;lcv.width=LW*DPR;lcv.height=LH*DPR;lcx.setTransform(DPR,0,0,DPR,0,0)}
+lsize();addEventListener('resize',()=>{lsize();drawLive()});
+function drawLive(){
+  const a=LA,fair=fairOf(a),now=Date.now();let first=now;for(const L of LINES){const r=SER[a][L.v];if(r&&r.length)first=Math.min(first,r[0][0])}
+  const SPAN=Math.min(300e3,Math.max(15e3,now-first)),t0=now-SPAN;lcx.clearRect(0,0,LW,LH);
+  const conv=v=>CMODE==='pct'&&fair?(v/fair-1)*100:v;
+  const vals=[];for(const L of LINES)(SER[a][L.v]||[]).forEach(p=>vals.push(conv(p[1])));
+  if(!vals.length){lcx.fillStyle=C.txt;lcx.font='400 12px Geist Mono';lcx.fillText('waiting for the first prices…',2,24);return}
+  let mn=Math.min(...vals),mx=Math.max(...vals);const m0=(mn+mx)/2;
+  const minSpan=CMODE==='pct'?0.4:(fair||m0)*0.004;if(mx-mn<minSpan){mn=m0-minSpan/2;mx=m0+minSpan/2}
+  const pad=(mx-mn)*.14;mn-=pad;mx+=pad;
+  const L0=0,R=LW-84,T=10,B=LH-24,X=t=>L0+(R-L0)*(t-t0)/SPAN,Y=v=>B-(B-T)*(v-mn)/(mx-mn);
+  lcx.font='400 11px Geist Mono';lcx.strokeStyle=C.grid;lcx.fillStyle=C.txt;lcx.lineWidth=1;
+  for(let g=0;g<=4;g++){const v=mn+(mx-mn)*g/4,y=Y(v);lcx.beginPath();lcx.moveTo(L0,y);lcx.lineTo(R,y);lcx.stroke();
+    lcx.fillText(CMODE==='pct'?(v>0?'+':'')+v.toFixed(2)+'%':'$'+fmt(v,v<100?2:0),R+10,y+4)}
+  for(let i=0;i<=5;i++){const s=Math.round(SPAN*(5-i)/5/1000);const l=i===5?'now':s>=60?'-'+(s/60).toFixed(s%60?1:0)+'m':'-'+s+'s';lcx.textAlign=i===0?'left':i===5?'right':'center';lcx.fillText(l,L0+(R-L0)*i/5,LH-6)}lcx.textAlign='left';
+  if(CMODE==='pct'){lcx.strokeStyle='rgba(62,229,138,.35)';lcx.setLineDash([2,4]);lcx.beginPath();lcx.moveTo(L0,Y(0));lcx.lineTo(R,Y(0));lcx.stroke();lcx.setLineDash([])}
+  for(const L of LINES){const arr=SER[a][L.v]||[];if(!arr.length)continue;
+    lcx.strokeStyle=L.c;lcx.lineWidth=1.7;lcx.setLineDash(L.dash?[5,4]:[]);lcx.beginPath();
+    arr.forEach((p,i)=>{const x=X(p[0]),y=Y(conv(p[1]));i?lcx.lineTo(x,y):lcx.moveTo(x,y)});lcx.stroke();lcx.setLineDash([]);
+    const p=arr[arr.length-1],x=X(p[0]),y=Y(conv(p[1]));lcx.fillStyle=L.c;lcx.beginPath();lcx.arc(x,y,3,0,7);lcx.fill();
+    lcx.globalAlpha=.25;lcx.beginPath();lcx.arc(x,y,7+2*Math.sin(now/300),0,7);lcx.fill();lcx.globalAlpha=1}
+  $('#liveLeg').innerHTML=LINES.map(L=>{const v=lineVal(L,a);return `<span><i style="background:${L.c}"></i>${L.v} <b>${v?'$'+fmt(v,v<100?2:0):'—'}</b></span>`}).join('');
+  $('#liveNow').textContent=fair?`market ${a} $${fmt(fair,2)}`:'';
+}
+const PREV={};const fmtQ=q=>q>=100?fmt(q,0):q>=1?fmt(q,2):fmt(q,4);
+function cheapestOf(a){let best=null;for(const L of LINES){const b=BOOKS[L.k.replace('{A}',a)];if(!b||!b.ask||Date.now()-b.ts>90e3)continue;const u=toUsd(b.ask,b.quote);if(u&&(!best||u<best.u))best={v:L.v,u}}return best}
+function drawPulse(){
+  const assets=['BTC','ETH','SOL'];let h='<tr><th>Exchange</th>'+assets.map(a=>`<th>${a}</th>`).join('')+'</tr>';
+  const ch={};assets.forEach(a=>{const c=cheapestOf(a);ch[a]=c&&c.v});
+  for(const L of LINES){h+=`<tr class="${L.local?'local':''}"><td><i style="background:${L.c}"></i>${L.v}</td>`;
+    for(const a of assets){const v=lineVal(L,a),f=fairOf(a),k=L.v+a;let cls='';
+      if(v&&PREV[k]&&v!==PREV[k])cls=v>PREV[k]?'flash-up':'flash-dn';if(v)PREV[k]=v;
+      const d=v&&f?(v/f-1)*100:null;
+      h+=`<td class="${cls}">${ch[a]===L.v?'<span class="cheap">cheapest</span>':''}<span class="p">${v?'$'+fmt(v,v<100?2:0):'—'}</span><span class="d ${d>0.005?'up':d<-0.005?'dn':''}">${d==null?'':(d>0?'+':'')+d.toFixed(3)+'%'}</span></td>`}
+    h+='</tr>'}
+  $('#pulse').innerHTML=h;
+}
+function spreadOf(a){let lo=null,hi=null;
+  for(const b of Object.values(BOOKS)){if(b.asset!==a||Date.now()-b.ts>60e3)continue;
+    const ask=b.ask&&toUsd(b.ask,b.quote),bid=b.bid&&toUsd(b.bid,b.quote);
+    if(ask&&(!lo||ask<lo.p))lo={p:ask,b};if(bid&&(!hi||bid>hi.p))hi={p:bid,b}}
+  return lo&&hi?{lo,hi,gap:Math.max(0,(hi.p/lo.p-1)*100)}:null}
+function verdict(){
+  const a=LA,s=spreadOf(a);if(!s)return;const box=$('#gapBox');
+  $('#gapLbl').textContent=`Biggest ${a} gap right now`;
+  $('#gapNum').textContent=s.gap.toFixed(2)+'%';
+  const nm=x=>`${x.b.venue} <span class="mono" style="color:var(--mute);font-size:.85em">${x.b.pair}</span>`;
+  if(s.gap>=THR&&s.lo.b.venue!==s.hi.b.venue){box.classList.add('open');
+    const fill=Math.min(s.lo.b.aq||0,s.hi.b.bq||0);$('#gapSay').innerHTML=`<b>${a} is ${s.gap.toFixed(2)}% cheaper on ${nm(s.lo)}.</b> Buy at $${fmt(s.lo.p,2)}, sell on ${nm(s.hi)} at $${fmt(s.hi.p,2)}. About +${money(10*s.gap)} per $1,000 before fees.`+(fill?`<br><span class="fill">Fillable at those exact prices right now: <b>${fmtQ(fill)} ${a}</b> (~${money(fill*s.lo.p)}). More may sit deeper in the book.</span>`:'')}
+  else{box.classList.remove('open');
+    $('#gapSay').innerHTML=`<b>No gap.</b> All five exchanges agree within your ${THR}% line. Cheapest ${a} this second: ${nm(s.lo)} at $${fmt(s.lo.p,2)}`+(s.lo.b.aq?`, ${fmtQ(s.lo.b.aq)} ${a} (~${money(s.lo.b.aq*s.lo.p)}) available at that price.`:'.')}
+  const sb=spreadOf('BTC'),cs=cheapestOf('SOL');
+  if(sb)$('#useArb').innerHTML=`<span>widest BTC gap</span>${sb.gap.toFixed(2)}%`;
+  if(cs)$('#useDca').innerHTML=`<span>cheapest SOL</span>${cs.v} · $${fmt(cs.u,2)}`;
+}
+function liveTick(){sample();drawLive();drawPulse();verdict()}
+setInterval(liveTick,1000);liveTick();
+$$('#liveTabs .tab').forEach(b=>b.onclick=()=>{$$('#liveTabs .tab').forEach(x=>x.classList.remove('on'));b.classList.add('on');LA=b.dataset.a;liveTick()});
+$$('#chartMode button').forEach(b=>b.onclick=()=>{$$('#chartMode button').forEach(x=>x.classList.remove('on'));b.classList.add('on');CMODE=b.dataset.m;drawLive()});
+
+/* ================= RECEIPT: yesterday's replay + calculator ================= */
+let INC=null,repA='SOL',curIdx=null,mode='low';
+fetch('data/incident.json').then(r=>r.json()).then(j=>{INC=j;initReplay()});
+function initReplay(){
+  const cv=$('#repCv'),cx=cv.getContext('2d');let W,H;
+  function size(){W=cv.clientWidth;H=cv.clientHeight;cv.width=W*DPR;cv.height=H*DPR;cx.setTransform(DPR,0,0,DPR,0,0);draw()}
+  function draw(){
+    const rows=INC.series[repA],n=rows.length;
+    const mx=Math.max(...rows.map(r=>r[1]))*1.04,mn=Math.min(...rows.map(r=>r[2]))*.9;
+    const L=0,R=W-64,T=10,B=H-24,X=i=>L+(R-L)*i/(n-1),Y=v=>B-(B-T)*(v-mn)/(mx-mn);
+    cx.clearRect(0,0,W,H);cx.font='400 11px Geist Mono';cx.fillStyle=C.txt;cx.strokeStyle=C.grid;
+    for(let g=0;g<=4;g++){const v=mn+(mx-mn)*g/4,y=Y(v);cx.beginPath();cx.moveTo(L,y);cx.lineTo(R,y);cx.stroke();cx.fillText('C$'+(v>=1000?Math.round(v/1000)+'k':Math.round(v)),R+10,y+4)}
+    cx.beginPath();rows.forEach((r,i)=>i?cx.lineTo(X(i),Y(r[1])):cx.moveTo(X(i),Y(r[1])));
+    for(let i=n-1;i>=0;i--)cx.lineTo(X(i),Y(Math.min(rows[i][1],rows[i][2])));cx.closePath();cx.fillStyle='rgba(255,75,62,.10)';cx.fill();
+    const line=(f,c,w,a=1)=>{cx.strokeStyle=c;cx.lineWidth=w;cx.globalAlpha=a;cx.beginPath();rows.forEach((r,i)=>{const v=f(r);i?cx.lineTo(X(i),Y(v)):cx.moveTo(X(i),Y(v))});cx.stroke();cx.globalAlpha=1};
+    line(r=>r[4]||r[3],C.hot2,1.2,.45);line(r=>r[2],C.hot,1.8);line(r=>r[1],C.up,1.6);
+    cx.fillStyle=C.txt;(W<520?[0,n-1]:[0,Math.floor(n/2),n-1]).forEach((i,j,arr)=>{cx.textAlign=j==0?'left':j==arr.length-1?'right':'center';cx.fillText(utc(rows[i][0]),X(i),H-6)});cx.textAlign='left';
+    const st=INC.stats[repA],li=rows.findIndex(r=>r[0]===st.lowT),ci=curIdx==null?li:curIdx,r=rows[ci];
+    cx.strokeStyle='rgba(242,242,239,.3)';cx.setLineDash([3,4]);cx.beginPath();cx.moveTo(X(ci),T);cx.lineTo(X(ci),B);cx.stroke();cx.setLineDash([]);
+    cx.fillStyle=C.hot;cx.beginPath();cx.arc(X(ci),Y(r[2]),4.5,0,7);cx.fill();cx.fillStyle=C.up;cx.beginPath();cx.arc(X(ci),Y(r[1]),3.5,0,7);cx.fill();
+    $('#scrubT').textContent=utc(r[0]);
+    $('#scrubV').innerHTML=`Kraken C$${fmt(r[2])} · everyone else C$${fmt(r[1])} · <span style="color:var(--hot)">${fmt((1-r[2]/r[1])*100,1)}% off</span>`;
+    calc();
+  }
+  function pick(e){const b=cv.getBoundingClientRect();const x=(e.touches?e.touches[0].clientX:e.clientX)-b.left;const n=INC.series[repA].length;curIdx=Math.max(0,Math.min(n-1,Math.round(x/(b.width-64)*(n-1))));draw()}
+  cv.addEventListener('mousemove',pick);cv.addEventListener('touchmove',pick,{passive:true});
+  cv.addEventListener('mouseleave',()=>{if(mode!=='cursor'){curIdx=null;draw()}});
+  $$('#assetTabs .tab').forEach(b=>b.onclick=()=>{$$('#assetTabs .tab').forEach(x=>x.classList.remove('on'));b.classList.add('on');repA=b.dataset.a;curIdx=null;draw()});
+  $$('#fillMode button').forEach(b=>b.onclick=()=>{$$('#fillMode button').forEach(x=>x.classList.remove('on'));b.classList.add('on');mode=b.dataset.m;calc()});
+  $('#amt').addEventListener('input',e=>{const v=e.target.value.replace(/[^0-9]/g,'');e.target.value=v?(+v).toLocaleString('en-US'):'';calc()});
+  addEventListener('resize',size);size();
+}
+function calc(){
+  if(!INC)return;const amt=+($('#amt').value.replace(/[^0-9]/g,''))||0,st=INC.stats[repA],rows=INC.series[repA];
+  let buy,fair,t,label;
+  if(mode==='low'){buy=st.low;fair=st.fairAtLow;t=st.lowT;label='the lowest print'}
+  else if(mode==='avg'){buy=st.worstAvg;fair=st.worstAvgFair;t=st.worstAvgT;label="the worst 15 minutes' average fill"}
+  else{const r=rows[curIdx==null?rows.findIndex(r=>r[0]===st.lowT):curIdx];buy=r[2];fair=r[1];t=r[0];label='the cursor'}
+  const out=amt*fair/buy;$('#outBig').textContent=money(out);
+  $('#outSmall').innerHTML=`${repA} bought on Kraken at <b>C$${fmt(buy)}</b> (${label}, ${utc(t)}), worth <b>C$${fmt(fair)}</b> on every other exchange that minute. <b>${fmt(fair/buy,2)}×</b>, or <b>+${money(out-amt)}</b>. Kraken says those trades stand.`;
+}
+</script>
+</body>
+</html>
