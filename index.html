@@ -445,12 +445,12 @@ const OK=['BTC-USDT','ETH-USDT','SOL-USDT','BTC-USDC','ETH-USDC','SOL-USDC'];
 ws('wss://ws.okx.com/ws/v5/public',s=>s.send(JSON.stringify({op:'subscribe',args:OK.map(i=>({channel:'tickers',instId:i}))})),
   m=>{if(!m.data||!m.arg)return;m.data.forEach(d=>{const[a,q]=d.instId.split('-');put('OKX',a,q,a+'/'+q,+d.bidPx,+d.askPx,+d.last,+d.bidSz,+d.askSz)})},'ping');
 
-const ANCHOR={};
+const ANCHOR={},FXLIVE={},HOLD={};
 function liveFx(q){ // median implied rate across every book quoted in q; trust it only near the daily anchor
   const a=FX[q]; if(!a)return null;
   const v=Object.values(BOOKS).filter(b=>b.quote===q&&Date.now()-b.ts<60e3).map(b=>{const f=fairOf(b.asset);const m=mid(b);return f&&m?m/f:null}).filter(Boolean).sort((x,y)=>x-y);
-  if(v.length<3)return a; const md=v[v.length>>1];
-  return Math.abs(md/a-1)<.025?md:a; // every CAD book broke together on Nov 20 -> fall back to the anchor
+  if(v.length<3){FXLIVE[q]=false;return a} const md=v[v.length>>1];
+  FXLIVE[q]=true; return Math.abs(md/a-1)<.025?md:a; // ready once 3+ books arrive; if they all broke together we fall back to the anchor AND still alert // every CAD book broke together on Nov 20 -> fall back to the anchor
 }
 function usdt(){const v=['Coinbase|USDT/USD','Kraken|USDT/USD'].map(k=>BOOKS[k]).filter(b=>b&&Date.now()-b.ts<120e3).map(mid).filter(x=>x>.9&&x<1.1);return v.length?v[0]:1}
 const toUsd=(px,q)=>q==='USD'||q==='USDC'?px:q==='USDT'?px*usdt():(ANCHOR[q]?px/ANCHOR[q]:null);
@@ -516,9 +516,10 @@ function render(){
       if(fair&&usd){dev=(usd/fair-1)*100;
         const askU=b.ask&&toUsd(b.ask,b.quote), bidU=b.bid&&toUsd(b.bid,b.quote);
         const cheap=askU?(1-askU/fair)*100:-dev, rich=bidU?(bidU/fair-1)*100:dev;
-        const loc=LOCALQ[b.quote];
-        if(cheap>=THR&&!stale){cls='cheap';if(!loc)logGap(b,'cheap',cheap,askU,fair)}
-        else if(rich>=THR&&!stale){cls='rich';if(!loc)logGap(b,'rich',rich,bidU,fair)}
+        const loc=LOCALQ[b.quote]||((b.quote==='CAD'||b.quote==='EUR')&&!FXLIVE[b.quote]);
+        const hk=b.venue+b.pair;HOLD[hk]=(cheap>=THR||rich>=THR)&&!stale?(HOLD[hk]||0)+1:0;const held=HOLD[hk]>=5;
+        if(cheap>=THR&&!stale){cls='cheap';if(!loc&&held)logGap(b,'cheap',cheap,askU,fair)}
+        else if(rich>=THR&&!stale){cls='rich';if(!loc&&held)logGap(b,'rich',rich,bidU,fair)}
         worst=Math.max(worst,Math.abs(dev));}
       const w=dev==null?0:Math.min(50,Math.abs(dev)/(THR*2)*50);
       const bar=dev==null?'':`<i style="${dev<0?'right:50%':'left:50%'};width:${w}%"></i>`;
