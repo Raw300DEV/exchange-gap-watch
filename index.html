@@ -379,7 +379,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap}
 
 <script>
 /* ===== launch config: leave name/ticker/ca empty until the CA exists ===== */
-const BRAND = { name:"", ticker:"", ca:"" };
+const BRAND = { name:"Misprint", ticker:"Misprint", ca:"4R4VqbTAsVWkRSTdSnwm9TxgQAD6xLQSjULCNsFTpump" };
 if(BRAND.name){ document.getElementById('brandName').textContent=BRAND.name; document.title=BRAND.name+" · live exchange price gaps"; }
 if(BRAND.name){const v=document.getElementById('vsl');if(v)v.src='media/vsl_named.mp4';}
 if(BRAND.ca){ const b=document.getElementById('caBtn'); b.style.display='inline-flex'; b.textContent=(BRAND.ticker?'$'+BRAND.ticker+' · ':'')+BRAND.ca.slice(0,4)+'…'+BRAND.ca.slice(-4)+' · copy';
